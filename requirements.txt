@@ -1,0 +1,16 @@
+sentence-transformers>=2.3.1
+faiss-cpu>=1.7.4
+rank-bm25>=0.2.2
+openai>=1.6.0
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+redis>=5.0.0
+prometheus-client>=0.19.0
+pydantic-settings>=2.0.0
+datasets>=2.16.0
+tiktoken>=0.5.2
+numpy>=1.26.0
+pandas>=2.1.0
+tqdm>=4.66.0
+httpx>=0.25.0
+pytest>=7.4.0
