@@ -1,0 +1,1 @@
+"""DocRank test suite."""
