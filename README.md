@@ -6,7 +6,7 @@
 [![FAISS](https://img.shields.io/badge/FAISS-1.7+-red.svg)](https://github.com/facebookresearch/faiss)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Hybrid BM25 + dense retrieval with Reciprocal Rank Fusion and ms-marco cross-encoder reranking. Achieves **NDCG@10 of 0.726 on SciFact** — a 9.2% improvement over BM25 alone and 16.5% over dense-only retrieval. Includes a complete evaluation pipeline most RAG tutorials skip: per-stage latency breakdown, LLM-as-judge faithfulness scoring, and a retrieval mode that runs entirely without an API key.
+Hybrid BM25 + dense retrieval with Reciprocal Rank Fusion and ms-marco cross-encoder reranking. Achieves **NDCG@10 of 0.726 on SciFact** — 9.2% above BM25 alone, 16.5% above dense-only. Includes per-stage latency breakdown, LLM-as-judge faithfulness scoring, and a retrieval mode that runs without an API key.
 
 > This is a search system, not a chatbot wrapper. Retrieval quality is measured, the evaluation pipeline is production-grade, and every design decision has a measurable justification.
 
@@ -72,17 +72,13 @@ make evaluate    # reproduce on SciFact
 
 ## Key Design Decisions
 
-**Hybrid search via RRF over score normalization**
-BM25 and dense retrieval produce scores on incompatible scales. Score normalization is fragile across query types. Reciprocal Rank Fusion merges ranked lists using only rank position — `score = Σ 1/(k + rank_i)` — which is scale-invariant and empirically robust. The `k=60` damping constant reduces the outsized influence of position-1 results. BM25 catches exact keyword matches; dense retrieval catches semantic paraphrases. Neither alone is optimal.
+**RRF over score normalization:** BM25 and dense scores are on incompatible scales. RRF fuses ranked lists using only rank position — scale-invariant and empirically robust. `k=60` damps position-1 outsized influence.
 
-**Two-stage reranking**
-A bi-encoder scores query and passage independently — fast but coarse, because the model never sees both together. A cross-encoder processes the full (query, passage) pair through all transformer layers with cross-attention, producing dramatically more accurate relevance estimates at O(n) cost. The two-stage design — retrieve 100 cheaply, rerank 20 with the cross-encoder, send 5 to the LLM — gets cross-encoder accuracy at retrieval-only scale.
+**Two-stage reranking:** Retrieve 100 with bi-encoders (fast, independent encoding), rerank 20 with a cross-encoder (full cross-attention, accurate). Cross-encoder accuracy at retrieval-only cost.
 
-**LLM-as-judge over ROUGE/BLEU**
-ROUGE measures n-gram overlap. For factoid questions, two correct answers with different phrasings score low ROUGE against each other. LLM judges correlate better with human preference for open-ended answers, enable reference-free faithfulness evaluation, and are cheap enough to run on every evaluation batch with GPT-4o-mini. Structured JSON prompts with explicit rubrics make scoring reproducible.
+**LLM-as-judge over ROUGE:** ROUGE penalizes correct answers with different phrasing. LLM judges correlate with human preference and enable reference-free faithfulness scoring at GPT-4o-mini cost.
 
-**tiktoken token budgeting**
-Naively taking the top-K chunks ignores the model's context window. A long chunk can exhaust the budget before a shorter but more relevant chunk is included. The context builder greedily adds chunks in score order until the tiktoken-counted token budget is exhausted, maximizing context quality within the window constraint.
+**tiktoken token budgeting:** Greedily adds chunks by score until the token budget is exhausted. Long chunks don't starve shorter but more relevant ones.
 
 ---
 
