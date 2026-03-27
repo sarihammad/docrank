@@ -6,9 +6,8 @@
 [![FAISS](https://img.shields.io/badge/FAISS-1.7+-red.svg)](https://github.com/facebookresearch/faiss)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Hybrid BM25 + dense retrieval with Reciprocal Rank Fusion and ms-marco cross-encoder reranking. Achieves **NDCG@10 of 0.726 on SciFact** — 9.2% above BM25 alone, 16.5% above dense-only. Includes per-stage latency breakdown, LLM-as-judge faithfulness scoring, and a retrieval mode that runs without an API key.
+Hybrid BM25 + dense retrieval with Reciprocal Rank Fusion and ms-marco cross-encoder reranking. Achieves **NDCG@10 of 0.726 on SciFact**. 9.2% above BM25 alone, 16.5% above dense-only. Includes per-stage latency breakdown, LLM-as-judge faithfulness scoring, and a retrieval mode that runs without an API key.
 
-> This is a search system, not a chatbot wrapper. Retrieval quality is measured, the evaluation pipeline is production-grade, and every design decision has a measurable justification.
 
 ---
 
